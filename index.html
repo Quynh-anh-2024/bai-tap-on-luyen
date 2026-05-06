@@ -60,10 +60,8 @@
         </div>
     </nav>
 
-    <!-- Thu gọn max-w xuống 6xl để giao diện không bị choán ngợp trên màn hình to -->
     <div class="flex-grow w-full max-w-6xl mx-auto p-4 sm:p-6 lg:p-8 flex flex-col lg:flex-row gap-8">
         
-        <!-- SIDEBAR -->
         <aside id="app-sidebar" class="w-full lg:w-80 flex flex-col gap-5 shrink-0">
             <div class="bg-white p-6 rounded-2xl shadow-soft border border-slate-100 sticky top-24">
                 <h2 class="text-base font-bold text-slate-800 mb-5 pb-3 border-b border-slate-100 flex items-center">
@@ -124,7 +122,6 @@
             </div>
         </aside>
 
-        <!-- MAIN CONTENT -->
         <main id="main-content" class="w-full lg:flex-1 flex flex-col min-w-0">
             
             <div id="action-bar" class="flex flex-wrap justify-between items-center mb-6 bg-white p-3 px-5 rounded-2xl shadow-soft border border-slate-100 hidden no-print">
@@ -138,17 +135,14 @@
                 </div>
             </div>
 
-            <!-- Empty State -->
             <div id="preview-empty" class="flex-grow flex flex-col items-center justify-center bg-white rounded-3xl border border-slate-200 p-12 text-center shadow-soft">
                 <div class="w-20 h-20 bg-brand-50 rounded-full flex items-center justify-center mb-5"><span class="text-4xl">📝</span></div>
                 <h3 class="text-lg font-bold text-slate-700">Trang giấy đang trống</h3>
                 <p class="text-sm text-slate-500 mt-2 max-w-sm">Nhập chủ đề và chọn số lượng câu hỏi để hệ thống AI bắt đầu biên soạn nội dung.</p>
             </div>
 
-            <!-- Test View -->
             <div id="test-wrapper" class="hidden bg-white shadow-soft rounded-3xl border border-slate-200 overflow-hidden mb-8 relative min-h-[500px]">
                 
-                <!-- Loading Overlay Fix căn giữa tuyệt đối -->
                 <div id="loading" class="hidden absolute inset-0 bg-white/95 backdrop-blur-sm z-10 flex flex-col items-center justify-center">
                     <div class="w-16 h-16 bg-brand-100 rounded-full flex items-center justify-center mb-4 ai-pulse"><span class="text-2xl">🤖</span></div>
                     <div class="font-bold text-brand-700 text-lg mb-1">Máy chủ đang xử lý...</div>
@@ -195,13 +189,13 @@
             document.getElementById('action-bar').classList.add('hidden');
             document.getElementById('loading').classList.remove('hidden');
             document.getElementById('test-paper-html').innerHTML = '';
-            document.getElementById('loading-text').innerText = 'Đang gửi yêu cầu lên ...';
+            document.getElementById('loading-text').innerText = 'Đang gửi yêu cầu lên máy chủ...';
 
             const mx = updateMatrix();
 
             try {
-                // ĐÂY LÀ CHỖ QUAN TRỌNG NHẤT: THAY LINK  CỦA THẦY VÀO ĐÂY
-                const response = await fetch('https://bai-tap-on-luyen.on.com/api/sinh-de', {
+                // ĐÃ SỬA ĐƯỜNG DẪN CHUẨN ĐỂ KHÔNG BỊ LỖI CORS
+                const response = await fetch('/api/sinh-de', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -210,7 +204,7 @@
                     })
                 });
 
-                if (!response.ok) throw new Error('Máy chủ  báo lỗi hoặc đang ngủ');
+                if (!response.ok) throw new Error('Máy chủ báo lỗi hoặc đang ngủ');
 
                 document.getElementById('loading-text').innerText = 'Đã nhận dữ liệu, đang vẽ tờ đề...';
                 const questionsArray = await response.json();
@@ -219,7 +213,7 @@
                     throw new Error("Dữ liệu JSON không hợp lệ.");
                 }
 
-                TestHTML(questionsArray, subject, grade, topic);
+                renderTestHTML(questionsArray, subject, grade, topic);
                 if (window.MathJax) MathJax.typesetPromise();
 
             } catch (error) {
@@ -229,7 +223,7 @@
             }
         }
 
-        function TestHTML(qArray, subject, grade, topic) {
+        function renderTestHTML(qArray, subject, grade, topic) {
             let htmlQ = '', htmlA = '';
             const levelMap = { 'nb': 'Nhận biết', 'th': 'Thông hiểu', 'vd': 'Vận dụng' };
             const tagMap = { 'nb': 'tag-nb', 'th': 'tag-th', 'vd': 'tag-vd' };
